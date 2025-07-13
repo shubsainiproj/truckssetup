@@ -13,6 +13,27 @@ const VENV_DIR = path.join(__dirname, 'venv');
 // Python packages that are NOT built-in
 const REQUIRED_PY_PACKAGES = ['requests', 'watchdog'];
 
+// Middleware to parse incoming JSON
+app.use(express.json());
+
+// Serve static files from current directory
+app.use(express.static(__dirname));
+
+// 🔐 Route to save incoming JSON to data.json
+app.post('/save', (req, res) => {
+  const data = req.body;
+  const filePath = path.join(__dirname, 'data.json');
+
+  fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8', (err) => {
+    if (err) {
+      console.error('❌ Failed to write data.json:', err);
+      return res.status(500).json({ success: false, error: 'Failed to save file' });
+    }
+    console.log('✅ data.json saved successfully.');
+    res.json({ success: true });
+  });
+});
+
 // Function to create a virtual environment and install packages
 function setupVirtualEnv() {
   if (!fs.existsSync(VENV_DIR)) {
@@ -62,10 +83,6 @@ function startBot() {
     if (stderr) console.error(`bot.py stderr:\n${stderr}`);
   });
 }
-
-// Static site support
-app.use(express.json());
-app.use(express.static(__dirname));
 
 // Start Node server
 app.listen(PORT, () => {
