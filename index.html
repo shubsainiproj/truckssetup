@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register in Database</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    .container {
+      max-width: 600px;
+      background: white;
+      margin: auto;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    .states {
+      margin-top: 20px;
+    }
+    .states button {
+      display: inline-block;
+      margin: 5px;
+      padding: 8px 12px;
+      background: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .states button:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>REGISTER IN DATABASE</h1>
+  <div class="container">
+    <label>Email ID</label>
+    <input type="email" id="email" placeholder="Enter your email" />
+
+    <label>Firm Mobile Number</label>
+    <input type="text" id="mobile" placeholder="Enter your firm’s mobile number" />
+
+    <label>Group Email (Permanent)</label>
+    <input type="email" id="groupEmail" placeholder="Enter group email" />
+
+    <div class="states">
+      <label>Select State (Click to Save)</label>
+      <div id="stateButtons"></div>
+    </div>
+  </div>
+
+  <script>
+    const states = {
+      "AL": "Alabama", "AK": "Alaska", "AZ": "Arizona", "AR": "Arkansas",
+      "CA": "California", "CO": "Colorado", "CT": "Connecticut", "DE": "Delaware",
+      "FL": "Florida", "GA": "Georgia", "HI": "Hawaii", "ID": "Idaho",
+      "IL": "Illinois", "IN": "Indiana", "IA": "Iowa", "KS": "Kansas",
+      "KY": "Kentucky", "LA": "Louisiana", "ME": "Maine", "MD": "Maryland",
+      "MA": "Massachusetts", "MI": "Michigan", "MN": "Minnesota", "MS": "Mississippi",
+      "MO": "Missouri", "MT": "Montana", "NE": "Nebraska", "NV": "Nevada",
+      "NH": "New Hampshire", "NJ": "New Jersey", "NM": "New Mexico", "NY": "New York",
+      "NC": "North Carolina", "ND": "North Dakota", "OH": "Ohio", "OK": "Oklahoma",
+      "OR": "Oregon", "PA": "Pennsylvania", "RI": "Rhode Island", "SC": "South Carolina",
+      "SD": "South Dakota", "TN": "Tennessee", "TX": "Texas", "UT": "Utah",
+      "VT": "Vermont", "VA": "Virginia", "WA": "Washington", "WV": "West Virginia",
+      "WI": "Wisconsin", "WY": "Wyoming"
+    };
+
+    const stateButtonsDiv = document.getElementById("stateButtons");
+
+    for (let code in states) {
+      const btn = document.createElement("button");
+      btn.innerText = `${code} - ${states[code]}`;
+      btn.onclick = () => saveData(code, states[code]);
+      stateButtonsDiv.appendChild(btn);
+    }
+
+    function saveData(code, stateName) {
+      const email = document.getElementById("email").value.trim();
+      const mobile = document.getElementById("mobile").value.trim();
+      const groupEmail = document.getElementById("groupEmail").value.trim();
+
+      if (!email || !mobile || !groupEmail) {
+        alert("Please fill in all fields!");
+        return;
+      }
+
+      const data = {
+        stateCode: code,
+        stateName: stateName,
+        email: email,
+        mobile: mobile,
+        groupEmail: groupEmail
+      };
+
+      fetch('/save', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      })
+      .then(res => res.text())
+      .then(msg => {
+        alert("Data saved under " + code + " - " + stateName);
+      })
+      .catch(err => {
+        alert("Error saving data.");
+        console.error(err);
+      });
+    }
+  </script>
+</body>
+</html>
