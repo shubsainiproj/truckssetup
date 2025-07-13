@@ -2,86 +2,252 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register in Database</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registration Form</title>
   <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #eef2f5;
-      margin: 0;
-      padding: 40px 10px;
+    * {
+      box-sizing: border-box;
     }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      margin: 0;
+      min-height: 100vh;
+      display: flex; /* Use Flexbox for centering */
+      flex-direction: column; /* Stack h1 and container vertically */
+      align-items: center; /* Center horizontally */
+      justify-content: center; /* Center vertically */
+      padding: 20px; /* Reduced padding for smaller screens */
+      overflow-x: hidden;
+    }
+
     h1 {
       text-align: center;
-      color: #333;
-      margin-bottom: 30px;
+      color: #2c3e50;
+      margin-bottom: 40px;
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
     }
+
     .container {
-      max-width: 600px;
-      margin: auto;
+      width: 90vw; /* Use viewport width for responsive sizing */
+      max-width: 700px; /* Maximum width for larger screens */
+      min-width: 300px; /* Minimum width for smaller screens */
       background: #fff;
-      padding: 25px;
-      border-radius: 12px;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      position: relative;
+      z-index: 2;
+      animation: fadeIn 0.5s ease-in-out;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     label {
       display: block;
-      margin-top: 15px;
+      margin-top: 20px;
       font-weight: 600;
-    }
-    input, select, button {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      color: #34495e;
       font-size: 1rem;
     }
+
+    input, select {
+      width: 100%;
+      padding: 14px;
+      margin-top: 8px;
+      border: 2px solid #e0e0e0;
+      border-radius: 10px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #1abc9c;
+      box-shadow: 0 0 8px rgba(26, 188, 156, 0.3);
+    }
+
+    input.error, select.error {
+      border-color: #e74c3c;
+    }
+
+    .input-group {
+      position: relative;
+    }
+
+    .input-group .error-message {
+      color: #e74c3c;
+      font-size: 0.85rem;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .input-group.error .error-message {
+      display: block;
+    }
+
     button {
-      background: #28a745;
+      width: 100%;
+      padding: 14px;
+      margin-top: 30px;
+      background: #1abc9c;
       color: white;
       border: none;
-      margin-top: 25px;
+      border-radius: 10px;
+      font-size: 1.1rem;
       font-weight: bold;
       cursor: pointer;
-      transition: background 0.3s ease;
+      transition: background 0.3s ease, transform 0.2s ease;
+      position: relative;
+      overflow: hidden;
     }
+
     button:hover {
-      background: #218838;
+      background: #16a085;
+      transform: translateY(-2px);
     }
+
+    button:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+    }
+
+    .loader {
+      display: none;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #1abc9c;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    @keyframes spin {
+      0% { transform: translate(-50%, -50%) rotate(0deg); }
+      100% { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
     .message {
       text-align: center;
       margin-top: 20px;
-      font-weight: bold;
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 10px;
+      border-radius: 8px;
     }
+
     .error {
-      color: #d9534f;
+      color: #e74c3c;
+      background: #fdeded;
     }
+
     .success {
-      color: #28a745;
+      color: #1abc9c;
+      background: #e8f8f5;
+    }
+
+    /* Enhanced Cursor Effect */
+    .cursor-dot,
+    .cursor-dot-outline {
+      pointer-events: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      transition: opacity 0.2s ease-in-out, transform 0.2s ease-in-out;
+    }
+
+    .cursor-dot {
+      width: 10px;
+      height: 10px;
+      background: #1abc9c;
+      box-shadow: 0 0 10px rgba(26, 188, 156, 0.8);
+    }
+
+    .cursor-dot-outline {
+      width: 40px;
+      height: 40px;
+      border: 2px solid #1abc9c;
+      opacity: 0.5;
+    }
+
+    .cursor-dot-outline.hovered {
+      transform: translate(-50%, -50%) scale(1.5);
+      opacity: 0.8;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+      .container {
+        padding: 20px;
+        width: 95vw; /* Slightly wider on mobile for better fit */
+        min-width: 280px; /* Adjusted for smaller screens */
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      input, select, button {
+        font-size: 0.95rem;
+      }
+    }
+
+    @media (min-width: 601px) and (max-width: 900px) {
+      .container {
+        width: 80vw; /* Adjust width for tablets */
+      }
     }
   </style>
 </head>
 <body>
-  <h1>REGISTER IN DATABASE</h1>
+  <h1>Registration Form</h1>
   <div class="container">
-    <label for="email">Email ID</label>
-    <input type="email" id="email" placeholder="Enter your email" />
+    <form id="registrationForm" novalidate>
+      <div class="input-group">
+        <label for="email">Email ID</label>
+        <input type="email" id="email" placeholder="Enter your email" aria-describedby="emailError" />
+        <div id="emailError" class="error-message">Please enter a valid email address.</div>
+      </div>
 
-    <label for="mobile">Firm Mobile Number</label>
-    <input type="tel" id="mobile" pattern="[0-9]{10}" placeholder="Enter 10-digit mobile number" />
+      <div class="input-group">
+        <label for="mobile">Firm Mobile Number</label>
+        <input type="tel" id="mobile" pattern="[0-9]{10}" placeholder="Enter 10-digit mobile number" aria-describedby="mobileError" />
+        <div id="mobileError" class="error-message">Please enter a valid 10-digit mobile number.</div>
+      </div>
 
-    <label for="groupEmail">Group Email (Permanent)</label>
-    <input type="email" id="groupEmail" placeholder="Enter group email" />
+      <div class="input-group">
+        <label for="groupEmail">Group Email (Permanent)</label>
+        <input type="email" id="groupEmail" placeholder="Enter group email" aria-describedby="groupEmailError" />
+        <div id="groupEmailError" class="error-message">Please enter a valid group email address.</div>
+      </div>
 
-    <label for="state">Select State</label>
-    <select id="state">
-      <option value="">-- Select a state --</option>
-    </select>
+      <div class="input-group">
+        <label for="state">Select State</label>
+        <select id="state" aria-describedby="stateError">
+          <option value="">-- Select a state --</option>
+        </select>
+        <div id="stateError" class="error-message">Please select a state.</div>
+      </div>
 
-    <button onclick="submitForm()">Submit</button>
-    <div id="msg" class="message"></div>
+      <button type="submit" id="submitBtn">Submit <span class="loader"></span></button>
+      <div id="msg" class="message"></div>
+    </form>
   </div>
+
+  <div class="cursor-dot-outline"></div>
+  <div class="cursor-dot"></div>
 
   <script>
     const states = {
@@ -108,21 +274,91 @@
       stateSelect.appendChild(opt);
     }
 
-    function submitForm() {
+    const form = document.getElementById("registrationForm");
+    const submitBtn = document.getElementById("submitBtn");
+    const loader = submitBtn.querySelector(".loader");
+    const msgDiv = document.getElementById("msg");
+
+    // Load saved form data from localStorage
+    function loadFormData() {
+      const savedData = JSON.parse(localStorage.getItem("registrationForm")) || {};
+      document.getElementById("email").value = savedData.email || "";
+      document.getElementById("mobile").value = savedData.mobile || "";
+      document.getElementById("groupEmail").value = savedData.groupEmail || "";
+      document.getElementById("state").value = savedData.stateCode || "";
+    }
+
+    // Save form data to localStorage
+    function saveFormData() {
+      const data = {
+        email: document.getElementById("email").value.trim(),
+        mobile: document.getElementById("mobile").value.trim(),
+        groupEmail: document.getElementById("groupEmail").value.trim(),
+        stateCode: document.getElementById("state").value
+      };
+      localStorage.setItem("registrationForm", JSON.stringify(data));
+    }
+
+    // Real-time validation
+    function validateField(field, errorId, validationFn) {
+      const inputGroup = field.parentElement;
+      const errorMessage = document.getElementById(errorId);
+      const isValid = validationFn(field.value.trim());
+      inputGroup.classList.toggle("error", !isValid);
+      return isValid;
+    }
+
+    function validateForm() {
+      const email = document.getElementById("email");
+      const mobile = document.getElementById("mobile");
+      const groupEmail = document.getElementById("groupEmail");
+      const state = document.getElementById("state");
+
+      const emailValid = !email.value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value);
+      const mobileValid = !mobile.value || /^[0-9]{10}$/.test(mobile.value);
+      const groupEmailValid = !groupEmail.value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(groupEmail.value);
+      const stateValid = !state.value || states[state.value];
+
+      validateField(email, "emailError", value => !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value));
+      validateField(mobile, "mobileError", value => !value || /^[0-9]{10}$/.test(value));
+      validateField(groupEmail, "groupEmailError", value => !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value));
+      validateField(state, "stateError", value => !value || states[value]);
+
+      return emailValid && mobileValid && groupEmailValid && stateValid;
+    }
+
+    // Real-time validation on input
+    ["email", "mobile", "groupEmail", "state"].forEach(id => {
+      const field = document.getElementById(id);
+      field.addEventListener("input", () => {
+        validateForm();
+        saveFormData();
+      });
+    });
+
+    // Form submission
+    async function submitForm(e) {
+      e.preventDefault();
+      if (!validateForm()) {
+        msgDiv.innerHTML = "Please correct the errors before submitting.";
+        msgDiv.className = "message error";
+        return;
+      }
+
       const email = document.getElementById("email").value.trim();
       const mobile = document.getElementById("mobile").value.trim();
       const groupEmail = document.getElementById("groupEmail").value.trim();
       const stateCode = document.getElementById("state").value;
-      const msgDiv = document.getElementById("msg");
 
-      // Allow submission if at least one field is filled
       if (!email && !mobile && !groupEmail && !stateCode) {
         msgDiv.innerHTML = "Please fill at least one field before submitting.";
         msgDiv.className = "message error";
         return;
       }
 
-      // Only include non-empty fields in the data object
+      submitBtn.disabled = true;
+      loader.style.display = "block";
+
       const data = {
         ...(email && { email }),
         ...(mobile && { mobile }),
@@ -130,22 +366,66 @@
         ...(stateCode && { stateCode, stateName: states[stateCode] })
       };
 
-      fetch('/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      })
-      .then(res => res.json())
-      .then(result => {
+      try {
+        const res = await fetch('/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
         msgDiv.innerHTML = result.message;
         msgDiv.className = result.success ? "message success" : "message error";
-      })
-      .catch(err => {
-        msgDiv.innerHTML = "Server error. Please try again.";
+        if (result.success) {
+          form.reset();
+          localStorage.removeItem("registrationForm");
+        }
+      } catch (err) {
+        msgDiv.innerHTML = "Server error. Please try again later.";
         msgDiv.className = "message error";
         console.error(err);
-      });
+      } finally {
+        submitBtn.disabled = false;
+        loader.style.display = "none";
+      }
     }
+
+    form.addEventListener("submit", submitForm);
+    window.addEventListener("load", loadFormData);
+
+    // Enhanced Cursor Effect
+    const cursorDot = document.querySelector(".cursor-dot");
+    const cursorOutline = document.querySelector(".cursor-dot-outline");
+
+    let mouseX = 0, mouseY = 0;
+    let outlineX = 0, outlineY = 0;
+
+    document.addEventListener("mousemove", e => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      cursorDot.style.top = mouseY + "px";
+      cursorDot.style.left = mouseX + "px";
+
+      // Detect hover on interactive elements
+      const target = e.target;
+      if (target.matches("button, input, select, a")) {
+        cursorOutline.classList.add("hovered");
+      } else {
+        cursorOutline.classList.remove("hovered");
+      }
+    });
+
+    function animateOutline() {
+      outlineX += (mouseX - outlineX) / 6;
+      outlineY += (mouseY - outlineY) / 6;
+
+      cursorOutline.style.top = outlineY + "px";
+      cursorOutline.style.left = outlineX + "px";
+
+      requestAnimationFrame(animateOutline);
+    }
+
+    animateOutline();
   </script>
 </body>
 </html>
