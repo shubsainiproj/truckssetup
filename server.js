@@ -19,26 +19,35 @@ app.use(express.json());
 // Serve static files from current directory
 app.use(express.static(__dirname));
 
-// 🔐 Route to save incoming JSON to {stateCode}.json
+// 🔐 Route to save incoming JSON to {stateCode}.json or data.json
 app.post('/save', (req, res) => {
-  const data = req.body;
-  const { stateCode } = data;
-  const filePath = path.join(__dirname, `${stateCode}.json`);
+  const rawData = req.body;
+  const data = {};
 
-  // Validate stateCode
-  if (!stateCode) {
-    console.error('❌ No stateCode provided in request');
-    return res.status(400).json({ success: false, message: 'State code is required' });
+  // Filter out empty fields
+  for (const key in rawData) {
+    if (rawData[key]?.toString().trim()) {
+      data[key] = rawData[key];
+    }
+  }
+
+  const { stateCode } = data;
+  const filePath = stateCode ? path.join(__dirname, `${stateCode}.json`) : path.join(__dirname, 'data.json');
+
+  // Validate that there is at least one field
+  if (Object.keys(data).length === 0) {
+    console.error('❌ No valid data provided in request');
+    return res.status(400).json({ success: false, message: 'At least one field is required' });
   }
 
   // Append the new data as a JSON object on a new line
   const jsonData = JSON.stringify(data) + '\n';
   fs.appendFile(filePath, jsonData, 'utf8', (err) => {
     if (err) {
-      console.error(`❌ Failed to append to ${stateCode}.json:`, err);
+      console.error(`❌ Failed to append to ${filePath}:`, err);
       return res.status(500).json({ success: false, message: 'Failed to save file' });
     }
-    console.log(`✅ ${stateCode}.json updated successfully.`);
+    console.log(`✅ ${filePath} updated successfully.`);
     res.json({ success: true, message: 'Data saved successfully' });
   });
 });
@@ -63,9 +72,9 @@ function setupVirtualEnv() {
 
 // Function to install required Python packages inside the venv
 function installPythonPackages() {
-  const pipCmd = `venv/bin/pip install ${REQUIRED_PY_PACKAGES.join(' ')}`;
+  const pip polaipCmd = `venv/bin/pip install ${REQUIRED_PY_PACKAGES.join(' ')}`;
   console.log(`📦 Installing Python packages: ${pipCmd}`);
-  exec(pipCmd, (error, stdout, stderr) => {
+  exec(pipCmd, (error,  stdout, stderr) => {
     if (error) {
       console.error(`❌ Failed to install packages: ${error.message}`);
       return;
