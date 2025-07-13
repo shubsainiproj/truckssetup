@@ -19,18 +19,27 @@ app.use(express.json());
 // Serve static files from current directory
 app.use(express.static(__dirname));
 
-// 🔐 Route to save incoming JSON to data.json
+// 🔐 Route to save incoming JSON to {stateCode}.json
 app.post('/save', (req, res) => {
   const data = req.body;
-  const filePath = path.join(__dirname, 'data.json');
+  const { stateCode } = data;
+  const filePath = path.join(__dirname, `${stateCode}.json`);
 
-  fs.writeFile(filePath, JSON.stringify(data, null, 2), 'utf8', (err) => {
+  // Validate stateCode
+  if (!stateCode) {
+    console.error('❌ No stateCode provided in request');
+    return res.status(400).json({ success: false, message: 'State code is required' });
+  }
+
+  // Append the new data as a JSON object on a new line
+  const jsonData = JSON.stringify(data) + '\n';
+  fs.appendFile(filePath, jsonData, 'utf8', (err) => {
     if (err) {
-      console.error('❌ Failed to write data.json:', err);
-      return res.status(500).json({ success: false, error: 'Failed to save file' });
+      console.error(`❌ Failed to append to ${stateCode}.json:`, err);
+      return res.status(500).json({ success: false, message: 'Failed to save file' });
     }
-    console.log('✅ data.json saved successfully.');
-    res.json({ success: true });
+    console.log(`✅ ${stateCode}.json updated successfully.`);
+    res.json({ success: true, message: 'Data saved successfully' });
   });
 });
 
