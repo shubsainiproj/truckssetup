@@ -36,7 +36,7 @@ app.post('/save', (req, res) => {
 
   // Validate that there is at least one field
   if (Object.keys(data).length === 0) {
-    console.error('❌ No valid data provided in request');
+    console.error('�... No valid data provided in request');
     return res.status(400).json({ success: false, message: 'At least one field is required' });
   }
 
@@ -44,7 +44,7 @@ app.post('/save', (req, res) => {
   const jsonData = JSON.stringify(data) + '\n';
   fs.appendFile(filePath, jsonData, 'utf8', (err) => {
     if (err) {
-      console.error(`❌ Failed to append to ${filePath}:`, err);
+      console.error(`�... Failed to append to ${filePath}:`, err);
       return res.status(500).json({ success: false, message: 'Failed to save file' });
     }
     console.log(`✅ ${filePath} updated successfully.`);
@@ -58,7 +58,7 @@ function setupVirtualEnv() {
     console.log('🔧 Creating Python virtual environment...');
     exec(`python3 -m venv venv`, (err, stdout, stderr) => {
       if (err) {
-        console.error(`❌ Failed to create venv: ${err.message}`);
+        console.error(`�... Failed to create venv: ${err.message}`);
         return;
       }
       console.log('✅ Virtual environment created.');
@@ -72,11 +72,11 @@ function setupVirtualEnv() {
 
 // Function to install required Python packages inside the venv
 function installPythonPackages() {
-  const pip polaipCmd = `venv/bin/pip install ${REQUIRED_PY_PACKAGES.join(' ')}`;
+  const pipCmd = `venv/bin/pip install ${REQUIRED_PY_PACKAGES.join(' ')}`;
   console.log(`📦 Installing Python packages: ${pipCmd}`);
-  exec(pipCmd, (error,  stdout, stderr) => {
+  exec(pipCmd, (error, stdout, stderr) => {
     if (error) {
-      console.error(`❌ Failed to install packages: ${error.message}`);
+      console.error(`�... Failed to install packages: ${error.message}`);
       return;
     }
     console.log(`✅ Python packages installed:\n${stdout}`);
@@ -87,14 +87,14 @@ function installPythonPackages() {
 // Function to start bot.py using the virtual environment
 function startBot() {
   if (!fs.existsSync(BOT_FILE)) {
-    console.error(`❌ bot.py not found at ${BOT_FILE}`);
+    console.error(`�... bot.py not found at ${BOT_FILE}`);
     return;
   }
 
   console.log('🚀 Launching bot.py...');
   exec(`venv/bin/python ${BOT_FILE}`, (err, stdout, stderr) => {
     if (err) {
-      console.error(`❌ Error running bot.py: ${err.message}`);
+      console.error(`�... Error running bot.py: ${err.message}`);
       return;
     }
     console.log(`🟢 bot.py output:\n${stdout}`);
