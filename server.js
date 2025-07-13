@@ -1,58 +1,63 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
-const bodyParser = require('body-parser');
+const { exec } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const FILE_PATH = path.join(__dirname, 'data.json');
 
-app.use(bodyParser.json());
-app.use(express.static(__dirname));
+// Path to your bot file
+const BOT_FILE = path.join(__dirname, 'bot.py');
 
-// Utility: Sanitize input
-function sanitize(input) {
-  return String(input).trim().replace(/[<>]/g, '');
+// Python packages to install
+const REQUIRED_PY_PACKAGES = [
+  'requests',
+  'watchdog',
+  'logging',   // logging is built-in, technically no need to install
+  'mmap'       // also built-in
+];
+
+// Function to install required Python packages
+function installPythonPackages() {
+  const pipInstallCmd = `pip install ${REQUIRED_PY_PACKAGES.join(' ')}`;
+  console.log(`📦 Installing Python packages: ${pipInstallCmd}`);
+  exec(pipInstallCmd, (error, stdout, stderr) => {
+    if (error) {
+      console.error(`❌ Failed to install packages: ${error.message}`);
+      return;
+    }
+    console.log(`✅ Python packages installed:\n${stdout}`);
+    startBot();
+  });
 }
 
-app.post('/save', (req, res) => {
-  try {
-    const { stateCode, stateName, email, mobile, groupEmail } = req.body;
-
-    if (!stateCode || !stateName || !email || !mobile || !groupEmail) {
-      return res.status(400).json({ success: false, message: 'Missing required fields.' });
-    }
-
-    const entry = {
-      mobile: sanitize(mobile),
-      groupEmail: sanitize(groupEmail)
-    };
-
-    let db = {};
-
-    if (fs.existsSync(FILE_PATH)) {
-      const fileContent = fs.readFileSync(FILE_PATH, 'utf8');
-      db = fileContent ? JSON.parse(fileContent) : {};
-    }
-
-    const sectionKey = `=============== ${stateCode} - ${stateName} ===============`;
-
-    if (!db[sectionKey]) db[sectionKey] = {};
-
-    if (db[sectionKey][email]) {
-      return res.json({ success: false, message: 'Email already exists in this state section.' });
-    }
-
-    db[sectionKey][sanitize(email)] = entry;
-
-    fs.writeFileSync(FILE_PATH, JSON.stringify(db, null, 2));
-    return res.json({ success: true, message: `Successfully saved under ${stateCode} - ${stateName}` });
-  } catch (err) {
-    console.error('Error saving data:', err);
-    return res.status(500).json({ success: false, message: 'Internal server error' });
+// Function to start bot.py
+function startBot() {
+  if (!fs.existsSync(BOT_FILE)) {
+    console.error(`❌ bot.py not found at ${BOT_FILE}`);
+    return;
   }
-});
 
+  console.log('🚀 Launching bot.py...');
+  exec(`python ${BOT_FILE}`, (err, stdout, stderr) => {
+    if (err) {
+      console.error(`❌ Error running bot.py: ${err.message}`);
+      return;
+    }
+    console.log(`🟢 bot.py output:\n${stdout}`);
+    if (stderr) console.error(`bot.py stderr:\n${stderr}`);
+  });
+}
+
+// Static site and body parsing
+app.use(express.json());
+app.use(express.static(__dirname));
+
+// You can keep your /save route here if needed
+// For now, we'll focus only on launching the Python environment
+
+// Start server
 app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+  console.log(`✅ Node server running on http://localhost:${PORT}`);
+  installPythonPackages();  // One-time setup on server start
 });
